@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DSA Friend 🧠 | Think Before You Code</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f0f1a;
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    h1 { font-size: 2.5rem; margin-bottom: 8px; color: #7c6af7; }
+    p.subtitle { color: #888; margin-bottom: 16px; font-size: 1.15rem; }
+    .topics {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    .topic-btn {
+      padding: 14px 28px;
+      border-radius: 12px;
+      border: 2px solid #7c6af7;
+      background: transparent;
+      color: #ffffff;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .topic-btn:hover, .topic-btn.selected { background: #7c6af7; }
+    #start-btn {
+      padding: 14px 40px;
+      background: #7c6af7;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: none;
+      transition: opacity 0.2s;
+    }
+    #start-btn:hover { opacity: 0.85; }
+    .section { display: none; max-width: 600px; width: 100%; text-align: left; }
+    .box {
+      background: #1a1a2e;
+      padding: 24px;
+      border-radius: 12px;
+      line-height: 1.8;
+      color: #ddd;
+    }
+    .next-btn {
+      margin-top: 24px;
+      padding: 14px 40px;
+      background: #7c6af7;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    textarea {
+      width: 100%;
+      padding: 16px;
+      background: #1a1a2e;
+      border: 2px solid #7c6af7;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1rem;
+      resize: vertical;
+      margin-top: 8px;
+    }
+    .languages {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    .language-btn {
+      padding: 10px 22px;
+      border-radius: 12px;
+      border: 2px solid #a78bfa;
+      background: transparent;
+      color: #ffffff;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .language-btn:hover, .language-btn.selected { background: #a78bfa; }
+    .difficulty {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    .difficulty-btn {
+      padding: 10px 22px;
+      border-radius: 12px;
+      border: 2px solid #f7a76c;
+      background: transparent;
+      color: #ffffff;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .difficulty-btn:hover, .difficulty-btn.selected { background: #f7a76c; color: #0f0f1a; }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+    .loader {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      padding: 8px 0;
+    }
+    .loader span {
+      width: 8px;
+      height: 8px;
+      background: #7c6af7;
+      border-radius: 50%;
+      animation: pulse 1.2s infinite;
+    }
+    .loader span:nth-child(2) { animation-delay: 0.2s; }
+    .loader span:nth-child(3) { animation-delay: 0.4s; }
+  </style>
+</head>
+<body>
+
+<canvas id="bg-canvas" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none;"></canvas>
+<button id="home-btn" onclick="goHome()" style="display:none; position:fixed; top:20px; left:20px; z-index:10; padding:8px 20px; background:transparent; border:2px solid #7c6af7; color:#7c6af7; border-radius:10px; cursor:pointer; font-size:0.9rem; transition: all 0.2s;">Home</button>
+
+<div id="main-content" style="position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; padding:20px; width:100%;">
+
+  <!-- LANDING -->
+  <h1 id="app-title">DSA Friend 🧠</h1>
+  <p class="subtitle" id="app-subtitle">Build your intuition. The syntax will follow.</p>
+  <p id="app-description" style="color: #666; font-size: 0.9rem; max-width: 380px; text-align: center; line-height: 1.7; margin-bottom: 32px;">Pick a DSA topic, get a problem, explain your approach in plain English — and AI scores your thinking, not your code.</p>
+
+  <!-- PROGRESS BAR -->
+  <div id="progress-bar" style="display:none; gap: 24px; flex-wrap: wrap; justify-content: center; margin-bottom: 24px; width: 100%; max-width: 600px;">
+    <div style="background:#1a1a2e; border-radius:12px; padding:12px 24px; text-align:center; border: 1px solid #7c6af7;">
+      <p style="color:#888; font-size:0.75rem; margin-bottom:4px;">PROBLEMS ATTEMPTED</p>
+      <p id="stat-attempted" style="color:#7c6af7; font-size:1.4rem; font-weight:600;">0</p>
+    </div>
+    <div style="background:#1a1a2e; border-radius:12px; padding:12px 24px; text-align:center; border: 1px solid #a78bfa;">
+      <p style="color:#888; font-size:0.75rem; margin-bottom:4px;">AVERAGE SCORE</p>
+      <p id="stat-avg" style="color:#a78bfa; font-size:1.4rem; font-weight:600;">-</p>
+    </div>
+    <div style="background:#1a1a2e; border-radius:12px; padding:12px 24px; text-align:center; border: 1px solid #f7a76c;">
+      <p style="color:#888; font-size:0.75rem; margin-bottom:4px;">TOPICS COVERED</p>
+      <p id="stat-topics" style="color:#f7a76c; font-size:1.4rem; font-weight:600;">-</p>
+    </div>
+  </div>
+
+  <!-- TOPIC SELECTOR -->
+  <div class="topics">
+    <button class="topic-btn" onclick="selectTopic(this, 'Arrays')">Arrays</button>
+    <button class="topic-btn" onclick="selectTopic(this, 'Linked Lists')">Linked Lists</button>
+    <button class="topic-btn" onclick="selectTopic(this, 'Stacks & Queues')">Stacks & Queues</button>
+  </div>
+
+  <!-- LANGUAGE SELECTOR -->
+  <p id="lang-label" style="display:none; color:#888; margin-bottom: 12px; margin-top: 8px; font-size: 0.9rem;">Now pick your language:</p>
+  <div class="languages" id="language-selector" style="display:none;">
+    <button class="language-btn" onclick="selectLanguage(this, 'C++')">C++</button>
+    <button class="language-btn" onclick="selectLanguage(this, 'Python')">Python</button>
+    <button class="language-btn" onclick="selectLanguage(this, 'JavaScript')">JavaScript</button>
+    <button class="language-btn" onclick="selectLanguage(this, 'Java')">Java</button>
+  </div>
+
+  <button id="start-btn" onclick="startSession()">Let's Go →</button>
+
+  <!-- SECTION 1: Explanation -->
+  <div id="explanation-section" class="section">
+    <h2 style="color: #7c6af7; margin-bottom: 16px;">📖 <span id="topic-title"></span></h2>
+    <div id="explanation-box" class="box">Loading...</div>
+    <p id="difficulty-label" style="display:none; color:#888; margin-top: 24px; margin-bottom: 12px; font-size: 0.9rem;">Select difficulty:</p>
+    <div class="difficulty" id="difficulty-selector" style="display:none;">
+      <button class="difficulty-btn" onclick="selectDifficulty(this, 'Easy')">Easy</button>
+      <button class="difficulty-btn" onclick="selectDifficulty(this, 'Intermediate')">Intermediate</button>
+      <button class="difficulty-btn" onclick="selectDifficulty(this, 'Hard')">Hard</button>
+    </div>
+    <button class="next-btn" id="problem-btn" onclick="showDifficulty()">Give me a problem →</button>
+  </div>
+
+  <!-- SECTION 2: Question + Dry Run -->
+  <div id="question-section" class="section">
+    <h2 style="color: #7c6af7; margin-bottom: 16px;">🧩 Your Problem</h2>
+    <div id="question-box" class="box"></div>
+    <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 12px;">
+      <p style="color: #555; font-size: 0.85rem; text-align: center;">— stuck? ask a question or request a hint —</p>
+      <div style="display: flex; gap: 8px;">
+        <input id="followup-input" type="text" placeholder="e.g. give me a hint, or what does traversal mean?"
+          style="flex:1; padding: 12px 16px; background: #1a1a2e; border: 2px solid #3a3a6e; border-radius: 12px; color: #fff; font-size: 0.9rem;"/>
+        <button onclick="askFollowUp()" style="padding: 12px 20px; background: #7c6af7; color: white; border: none; border-radius: 12px; cursor: pointer; font-size: 0.9rem;">Ask →</button>
+      </div>
+      <div id="hint-box" class="box" style="display:none;"></div>
+    </div>
+    <h3 style="margin-top: 24px; margin-bottom: 8px; color: #aaa;">✍️ Your dry run — explain your approach before coding:</h3>
+    <textarea id="user-answer" rows="6" placeholder="Walk me through your thinking step by step... No code, just your logic."></textarea>
+    <button class="next-btn" onclick="scoreAnswer()">Score my thinking →</button>
+  </div>
+
+  <!-- SECTION 3: Score -->
+  <div id="score-section" class="section">
+    <h2 style="color: #7c6af7; margin-bottom: 16px;">⭐ Your Score</h2>
+    <div id="score-box" class="box">Scoring your answer...</div>
+    <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px;">
+      <button class="next-btn" style="margin-top: 0;" onclick="tryAgain()">Try again →</button>
+      <button class="next-btn" style="margin-top: 0; background: #3a3a6e;" onclick="getQuestion()">New problem →</button>
+      <button class="next-btn" style="margin-top: 0; background: #1a1a2e; border: 2px solid #7c6af7;" onclick="changeTopic()">Change topic →</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+    const API_KEY = "YOUR_GROQ_KEY_HERE";
+    const MODEL = "llama-3.3-70b-versatile";
+    let selectedTopic = "";
+    let selectedLanguage = "";
+    let currentProblem = "";
+    let selectedDifficulty = "";
+    let problemsAttempted = 0;
+    let scores = [];
+    let topicsCovered = new Set();
+
+    function hideLanding() {
+      document.getElementById('app-title').style.display = 'none';
+      document.getElementById('app-subtitle').style.display = 'none';
+      document.getElementById('app-description').style.display = 'none';
+      document.querySelector('.topics').style.display = 'none';
+      document.getElementById('lang-label').style.display = 'none';
+      document.getElementById('language-selector').style.display = 'none';
+      document.getElementById('start-btn').style.display = 'none';
+      document.getElementById('home-btn').style.display = 'block';
+    }
+
+    function showLanding() {
+      document.getElementById('app-title').style.display = 'block';
+      document.getElementById('app-subtitle').style.display = 'block';
+      document.getElementById('app-description').style.display = 'block';
+      document.querySelector('.topics').style.display = 'flex';
+      document.getElementById('lang-label').style.display = 'none';
+      document.getElementById('language-selector').style.display = 'none';
+      document.getElementById('start-btn').style.display = 'none';
+      document.getElementById('home-btn').style.display = 'none';
+    }
+
+    function selectTopic(btn, topic) {
+      document.querySelectorAll('.topic-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedTopic = topic;
+      document.getElementById('language-selector').style.display = 'flex';
+      document.getElementById('lang-label').style.display = 'block';
+      document.getElementById('start-btn').style.display = 'none';
+    }
+
+    function selectLanguage(btn, language) {
+      document.querySelectorAll('.language-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedLanguage = language;
+      if (selectedTopic && selectedLanguage) {
+        document.getElementById('start-btn').style.display = 'block';
+      }
+    }
+
+    function selectDifficulty(btn, difficulty) {
+      document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedDifficulty = difficulty;
+      getQuestion();
+    }
+
+    async function startSession() {
+      hideLanding();
+      showSection('explanation-section');
+      document.getElementById('topic-title').innerText = selectedTopic;
+      topicsCovered.add(selectedTopic);
+      await getExplanation();
+    }
+
+    async function getExplanation() {
+      const box = document.getElementById('explanation-box');
+      box.innerHTML = '<div class="loader"><span></span><span></span><span></span></div> Analyzing topic...';
+      const prompt = `You are DSA Friend, a fun and encouraging DSA tutor for beginner CS students.
+Explain ${selectedTopic} in ${selectedLanguage} in simple terms. Cover:
+1. What it is (one sentence, plain English)
+2. How it works (simple intuition, no jargon)
+3. One real life analogy
+4. When you'd use it
+5. A tiny code snippet showing basic declaration/setup in ${selectedLanguage}
+6. A tiny code snippet showing one common operation in ${selectedLanguage} (like insert, push, or traverse)
+
+Keep it friendly and beginner-focused. Code snippets should be minimal — 3 to 5 lines max.`;
+      const response = await callGroq(prompt);
+      box.innerHTML = formatResponse(response);
+    }
+
+    function showDifficulty() {
+      document.getElementById('difficulty-selector').style.display = 'flex';
+      document.getElementById('difficulty-label').style.display = 'block';
+      document.getElementById('problem-btn').style.display = 'none';
+    }
+
+    async function getQuestion() {
+      problemsAttempted++;
+      document.getElementById('difficulty-selector').style.display = 'none';
+      document.getElementById('difficulty-label').style.display = 'none';
+      document.getElementById('problem-btn').style.display = 'block';
+      showSection('question-section');
+      document.getElementById('hint-box').style.display = 'none';
+      document.getElementById('hint-box').innerHTML = '';
+      document.getElementById('followup-input').value = '';
+      document.getElementById('user-answer').value = '';
+      const box = document.getElementById('question-box');
+      box.innerHTML = '<div class="loader"><span></span><span></span><span></span></div> Generating your problem...';
+      const randomSeed = Math.floor(Math.random() * 10000);
+      const randomStyles = ['iterative', 'real-world scenario', 'game-based', 'mathematical', 'string-based', 'index-based'];
+      const randomStyle = randomStyles[Math.floor(Math.random() * randomStyles.length)];
+      const timestamp = Date.now();
+      const prompt = `You are DSA Friend. Generate a ${selectedDifficulty} level ${selectedTopic} problem for a student coding in ${selectedLanguage}. Seed: ${randomSeed}. Timestamp: ${timestamp}. Style: ${randomStyle}.
+
+IMPORTANT: This must be a BRAND NEW unique problem. Do NOT repeat common examples like reversing an array or finding max element. Be creative with the scenario.
+
+Difficulty rules — follow STRICTLY:
+- Easy: ONE single loop only, ONE variable to track answer. Examples: find max value, count even numbers, find first occurrence. NO frequency maps, NO nested logic, NO multi-step counting, NO sliding window, NO prefix sum, NO two pointers.
+- Intermediate: requires two loops or one smart loop. Examples: two sum, remove duplicates, rotate array.
+- Hard: interview-style, requires an algorithm. Examples: sliding window, prefix sum, kadane's algorithm.
+
+EXAMPLE formatting rules — follow STRICTLY:
+- Give exactly ONE example only
+- Show input clearly
+- Show output as a single value
+- DO NOT explain or second-guess the example
+- DO NOT show multiple possible answers
+
+Format exactly like this and nothing else:
+PROBLEM: [one clear problem statement, one sentence]
+EXAMPLE: Input: [example input] | Output: [single output value]
+HINT: [one sentence pointing in the right direction, no solution]`;
+      const response = await callGroq(prompt);
+      currentProblem = response;
+      box.innerHTML = formatResponse(response);
+    }
+
+    async function askFollowUp() {
+      const question = document.getElementById('followup-input').value.trim();
+      if (!question) { alert("Please type your question first!"); return; }
+      const box = document.getElementById('hint-box');
+      box.style.display = 'block';
+      box.innerHTML = '<div class="loader"><span></span><span></span><span></span></div> Thinking about your question...';
+      const prompt = `You are DSA Friend, an encouraging DSA tutor.
+The student is working on this problem: ${currentProblem}
+The student's question is: ${question}
+
+Answer their question by:
+1. Directly addressing what they asked
+2. Linking your answer back to the problem with a real life analogy
+3. NOT giving the full solution — just enough to unblock them
+4. Ending with one encouraging line
+
+Be specific, warm, and beginner-friendly.`;
+      const response = await callGroq(prompt);
+      box.innerHTML = formatResponse(response);
+      document.getElementById('followup-input').value = '';
+    }
+
+    async function scoreAnswer() {
+      const answer = document.getElementById('user-answer').value.trim();
+      if (!answer) { alert("Please write your dry run first!"); return; }
+      showSection('score-section');
+      const box = document.getElementById('score-box');
+      box.innerHTML = '<div class="loader"><span></span><span></span><span></span></div> Scoring your thinking...';
+      const prompt = `You are DSA Friend, an encouraging DSA tutor.
+The problem was: ${currentProblem}
+The student's dry run approach was: ${answer}
+
+Evaluate their thinking (NOT their code). Give:
+1. SCORE: X/10
+2. WHAT YOU GOT RIGHT: (specific praise)
+3. WHAT TO IMPROVE: (one gentle suggestion)
+4. THE KEY INSIGHT: (the main thing to remember for this type of problem)
+
+Be encouraging, specific, and beginner-friendly.`;
+      const response = await callGroq(prompt, 400);
+      const scoreMatch = response.match(/(\d+)\/10/);
+      if (scoreMatch) scores.push(parseInt(scoreMatch[1]));
+      updateProgress();
+      box.innerHTML = formatResponse(response);
+    }
+
+    async function callGroq(prompt, tokens = 1024) {
+      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${API_KEY}`
+        },
+        body: JSON.stringify({
+          model: MODEL,
+          messages: [{ role: "user", content: prompt }],
+          max_tokens: tokens
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message || "API error");
+      return data.choices[0].message.content;
+    }
+
+    function formatResponse(response) {
+      return response
+        .replace(/```[\w]*\n([\s\S]*?)```/g, '<pre style="background:#0d0d1a; border:1px solid #7c6af7; border-radius:8px; padding:16px; overflow-x:auto; margin:12px 0;"><code style="font-family:monospace; font-size:0.9rem; color:#a78bfa;">$1</code></pre>')
+        .replace(/`([^`]+)`/g, '<code style="background:#0d0d1a; border:1px solid #7c6af7; border-radius:4px; padding:2px 8px; font-family:monospace; font-size:0.9rem; color:#a78bfa;">$1</code>')
+        .replace(/\n/g, '<br>');
+    }
+
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+      document.getElementById(id).style.display = 'block';
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function updateProgress() {
+      const avg = scores.length ? Math.round(scores.reduce((a,b) => a+b, 0) / scores.length) : 0;
+      document.getElementById('progress-bar').style.display = 'flex';
+      document.getElementById('stat-attempted').innerText = problemsAttempted;
+      document.getElementById('stat-avg').innerText = scores.length ? avg + '/10' : '-';
+      document.getElementById('stat-topics').innerText = [...topicsCovered].join(', ');
+    }
+
+    function tryAgain() {
+      document.getElementById('user-answer').value = '';
+      document.getElementById('hint-box').style.display = 'none';
+      document.getElementById('hint-box').innerHTML = '';
+      document.getElementById('followup-input').value = '';
+      showSection('question-section');
+    }
+
+    function changeTopic() {
+      selectedTopic = "";
+      selectedLanguage = "";
+      currentProblem = "";
+      selectedDifficulty = "";
+      document.querySelectorAll('.topic-btn').forEach(b => b.classList.remove('selected'));
+      document.querySelectorAll('.language-btn').forEach(b => b.classList.remove('selected'));
+      document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('selected'));
+      document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+      document.getElementById('difficulty-selector').style.display = 'none';
+      document.getElementById('difficulty-label').style.display = 'none';
+      document.getElementById('problem-btn').style.display = 'block';
+      showLanding();
+    }
+
+    function goHome() {
+      selectedTopic = "";
+      selectedLanguage = "";
+      currentProblem = "";
+      selectedDifficulty = "";
+      document.querySelectorAll('.topic-btn').forEach(b => b.classList.remove('selected'));
+      document.querySelectorAll('.language-btn').forEach(b => b.classList.remove('selected'));
+      document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('selected'));
+      document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+      document.getElementById('difficulty-selector').style.display = 'none';
+      document.getElementById('difficulty-label').style.display = 'none';
+      document.getElementById('problem-btn').style.display = 'block';
+      showLanding();
+    }
+
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    const particles = [];
+    for (let i = 0; i < 60; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 2 + 1,
+        dx: (Math.random() - 0.5) * 0.4,
+        dy: (Math.random() - 0.5) * 0.4,
+        alpha: Math.random() * 0.5 + 0.1
+      });
+    }
+
+    function drawBackground() {
+      ctx.fillStyle = 'rgba(15, 15, 26, 0.15)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        p.x += p.dx;
+        p.y += p.dy;
+        if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(124, 106, 247, ${p.alpha})`;
+        ctx.fill();
+      });
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      drawBackground();
+    }
+
+    animate();
+</script>
+
+</body>
+</html>
