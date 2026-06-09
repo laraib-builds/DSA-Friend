@@ -9,6 +9,14 @@ Most DSA platforms judge whether your code runs. DSA Friend judges whether your 
 
 ---
 
+## 📸 Screenshots
+
+![Landing Page](screenshots/landing.png)
+![Problem Screen](screenshots/problem.png)
+![Score Screen](screenshots/score.png)
+
+---
+
 ## 🎯 What is DSA Friend?
 
 DSA Friend is an AI-powered DSA practice tool built for CS students who want to think like problem solvers, not syntax memorizers.
