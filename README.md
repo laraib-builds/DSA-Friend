@@ -11,9 +11,9 @@ Most DSA platforms judge whether your code runs. DSA Friend judges whether your 
 
 ## 📸 Screenshots
 
-![Landing Page](<screenshots/landing page.png>)
-![Problem Screen](<screenshots/problem screen.png>)
-![Score Screen](<screenshots/score screen.png>)
+![Landing Page](screenshots/landing.png.png)
+![Problem Screen](screenshots/problem.png.png)
+![Score Screen](screenshots/score.png.png)
 
 ---
 
